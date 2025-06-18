@@ -21,6 +21,7 @@
       <textarea id="message" placeholder="Optional message"></textarea>
       <button type="submit">Add Gift</button>
     </form>
+<button id="reset-button" class="reset-btn">Reset Gift List ❌</button>
 
     <section id="gift-list">
       <h2>🎁 Gift List</h2>
@@ -43,10 +44,15 @@
       appId: "1:209006917936:web:2dfa8d95d30c1d839670f5",
       measurementId: "G-W7SPJJ15TS"
     };
-
+    
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-  </script>
+
+    // Load main script only after Firebase is ready
+const script = document.createElement('script');
+    script.src = 'script.js';
+    document.body.appendChild(script);
+</script>
 
   <script src="script.js"></script>
 </body>

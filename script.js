@@ -2,13 +2,18 @@ const giftForm = document.getElementById('gift-form');
 const giftList = document.getElementById('list');
 const submitButton = giftForm.querySelector('button[type="submit"]');
 
-// Load gifts from localStorage on page load
-window.addEventListener('DOMContentLoaded', () => {
-  const gifts = JSON.parse(localStorage.getItem('gifts')) || [];
-  gifts.forEach(gift => addGiftToList(gift));
+const giftsRef = firebase.database().ref('gifts'); // Firebase DB reference
+
+// Listen for changes and update gift list live
+giftsRef.on('value', snapshot => {
+  giftList.innerHTML = ''; // clear existing list
+  const gifts = snapshot.val();
+  if (!gifts) return;
+
+  Object.values(gifts).forEach(gift => addGiftToList(gift));
 });
 
-// Add gift on form submit
+// On form submit, add new gift to Firebase
 giftForm.addEventListener('submit', e => {
   e.preventDefault();
 
@@ -16,28 +21,31 @@ giftForm.addEventListener('submit', e => {
   const gift = document.getElementById('gift').value.trim();
   const message = document.getElementById('message').value.trim();
 
-  if (countGiftsByUser(name) >= 3) {
-    alert('You have reached the maximum of 3 gifts.');
-    submitButton.disabled = true;
-    return;
-  }
+  // Check how many gifts this user already added
+  giftsRef.once('value').then(snapshot => {
+    const gifts = snapshot.val() || {};
+    const userGiftCount = Object.values(gifts).filter(g => g.name.toLowerCase() === name.toLowerCase()).length;
 
-  const giftObj = { name, gift, message };
-  saveGift(giftObj);
-  addGiftToList(giftObj);
+    if (userGiftCount >= 3) {
+      alert('You have reached the maximum of 3 gifts.');
+      submitButton.disabled = true;
+      return;
+    }
 
-  // Reset form
-  giftForm.reset();
+    const giftObj = { name, gift, message };
 
-  // Disable add button if max gifts reached
-  if (countGiftsByUser(name) >= 3) {
-    submitButton.disabled = true;
-    submitButton.textContent = 'Max 3 Gifts Added';
-  }
+    // Push new gift to Firebase
+    giftsRef.push(giftObj)
+      .then(() => {
+        giftForm.reset();
+        submitButton.disabled = false;
+        submitButton.textContent = 'Add Gift';
+      })
+      .catch(err => alert('Error saving gift: ' + err.message));
+  });
 });
 
-// Functions from your snippet, integrated and slightly polished
-
+// Add a gift item to the DOM list
 function addGiftToList({ name, gift, message }) {
   const listItem = document.createElement('li');
 
@@ -51,39 +59,27 @@ function addGiftToList({ name, gift, message }) {
   deleteBtn.textContent = '🗑️';
 
   deleteBtn.addEventListener('click', () => {
-    listItem.remove();
-
-    let gifts = JSON.parse(localStorage.getItem('gifts')) || [];
-    gifts = gifts.filter(g => !(g.name === name && g.gift === gift && g.message === message));
-    localStorage.setItem('gifts', JSON.stringify(gifts));
-
-    // Check if current user can add again
-    const currentName = document.getElementById('name').value.trim();
-    if (countGiftsByUser(currentName) < 3) {
-      submitButton.disabled = false;
-      submitButton.textContent = 'Add Gift';
-    }
+    // Find and remove matching gift in Firebase
+    giftsRef.once('value').then(snapshot => {
+      const gifts = snapshot.val() || {};
+      for (const key in gifts) {
+        const g = gifts[key];
+        if (g.name === name && g.gift === gift && g.message === message) {
+          giftsRef.child(key).remove();
+          break;
+        }
+      }
+    });
   });
 
   listItem.appendChild(deleteBtn);
   giftList.appendChild(listItem);
 }
 
-function saveGift(giftObj) {
-  const gifts = JSON.parse(localStorage.getItem('gifts')) || [];
-  gifts.push(giftObj);
-  localStorage.setItem('gifts', JSON.stringify(gifts));
-}
-
-function countGiftsByUser(name) {
-  const gifts = JSON.parse(localStorage.getItem('gifts')) || [];
-  return gifts.filter(g => g.name.toLowerCase() === name.toLowerCase()).length;
-}
-
-// Reset all
+// Reset all gifts (clear Firebase database)
 document.getElementById('reset-button').addEventListener('click', () => {
   if (confirm('Are you sure you want to reset the gift list?')) {
-    localStorage.removeItem('gifts');
+    giftsRef.remove();
     giftList.innerHTML = '';
     submitButton.disabled = false;
     submitButton.textContent = 'Add Gift';

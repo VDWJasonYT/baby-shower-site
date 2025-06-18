@@ -6,12 +6,11 @@
   <title>Mijané Baby Shower</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="icon" href="./laughing.ico" type="image/png" />
-
 </head>
 <body>
   <div class="container">
     <header>
-      <img src="./944320d6-f6db-46d4-95bf-f95d58e54cf2.avif" alt="Winnie the Pooh" class="pooh-img">
+      <img src="./944320d6-f6db-46d4-95bf-f95d58e54cf2.avif" alt="Winnie the Pooh" class="pooh-img" />
       <h1>🎀 Mijané Baby Shower 🎀</h1>
       <p>Let’s shower Emiley with love and gifts! 💝</p>
     </header>
@@ -28,6 +27,26 @@
       <ul id="list"></ul>
     </section>
   </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAYXESepJ-MU1d9Jp8BUS6bE4Wm0HjJqpg",
+      authDomain: "christelle-a8521.firebaseapp.com",
+      databaseURL: "https://christelle-a8521-default-rtdb.firebaseio.com",
+      projectId: "christelle-a8521",
+      storageBucket: "christelle-a8521.firebasestorage.app",
+      messagingSenderId: "209006917936",
+      appId: "1:209006917936:web:2dfa8d95d30c1d839670f5",
+      measurementId: "G-W7SPJJ15TS"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 
   <script src="script.js"></script>
 </body>

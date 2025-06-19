@@ -69,23 +69,6 @@ li {
   color: #b71c1c;
 }
 
-.reset-btn {
-  width: 100%;
-  margin-top: 10px;
-  background-color: #ffb6b6;
-  color: white;
-  border: none;
-  padding: 10px;
-  font-size: 1em;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.reset-btn:hover {
-  background-color: #e57373;
-}
-
 .pooh-img{
     width: 100px;
     margin-top: 10px;
